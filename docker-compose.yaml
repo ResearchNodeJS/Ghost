@@ -1,0 +1,45 @@
+version: '3.8'
+services:
+ mysql:
+  image: mysql:8.0.22
+  container_name: mysql
+  volumes:
+    - ./mysql_volume:/var/lib/mysql
+  ports:
+    - 3306:3306
+  networks:
+    - mysql
+  environment:
+    MYSQL_DATABASE: blogs
+    MYSQL_USER: blogs
+    MYSQL_ROOT_PASSWORD: NtT.1996
+    MYSQL_PASSWORD: NtT.1996
+
+ ghost:
+  build: ./ghost_docker
+  container_name: ghost
+  volumes:
+    - ./ghost_volume:/var/lib/ghost
+  restart: always
+  ports:
+    - 8090:2368
+  networks:
+    - mysql
+  environment:
+    database__client: mysql
+    database__connection__host: mysql
+    database__connection__user: blogs
+    database__connection__password: NtT.1996
+    database__connection__database: blogs
+  depends_on:
+    - mysql
+  entrypoint: ["wait-for-it.sh", "mysql", "--", "docker-entrypoint.sh"]
+  command: ["node", "current/index.js"]
+
+volumes:
+  mysql_volume:
+  ghost_volume:
+
+networks:
+  mysql:
+    driver: bridge
